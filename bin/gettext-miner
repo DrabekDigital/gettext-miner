@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+      use DrabekDigital\GettextMiner\Commands\MineCommand;
+if (file_exists(__DIR__ . '/../../../autoload.php')) {
+    require __DIR__ . '/../../../autoload.php';
+} elseif (file_exists('vendor/autoload.php')) {
+    require 'vendor/autoload.php';
+} else {
+    die('Cannot find Composer autoload.php. Did you run composer install?');
+}
+
+use Symfony\Component\Console\Application;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Console\ConsoleEvents;
+
+
+$dispatcher = new EventDispatcher();
+$dispatcher->addListener(ConsoleEvents::ERROR, function (Symfony\Component\Console\Event\ConsoleErrorEvent $event) {
+    $exception = $event->getError();
+    $output = $event->getOutput();
+    $output->writeln(sprintf('Error: %s', $exception->getMessage()));
+    exit(1);
+});
+$dispatcher->addListener(ConsoleEvents::TERMINATE, function (Symfony\Component\Console\Event\ConsoleTerminateEvent $event) {
+    $output = $event->getOutput();
+    $output->writeln('');
+    $output->writeln('Finished :-)');
+});
+
+$application = new Application();
+$application->add(new MineCommand());
+$application->setDispatcher($dispatcher);
+$application->run();

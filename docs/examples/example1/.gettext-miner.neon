@@ -1,0 +1,25 @@
+ExampleModule:
+    output:
+        destination: destination/template.pot
+        formatter: Gettext
+        detector: SprintfPluralDetector
+    sources:
+        - sources/folder
+    files:
+        - sources/standalone.php
+    extractors:
+        php:
+            extractor: PHP
+            extraFunctions:
+                myCustomTranslate: 1
+        latte:
+            extractor: LegacyLatte
+            extraModifiers:
+                - myCustomFilter
+        sql:
+            extractor: SQL
+        neon:
+            extractor: Neon
+            paths:
+                sources/folder/config.neon:
+                    - parameters|myEnum

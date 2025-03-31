@@ -1,0 +1,1 @@
+INSERT INTO table (foo) VALUES (/*_*/'DB enum label'/*_*/)

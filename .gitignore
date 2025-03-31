@@ -1,0 +1,5 @@
+composer.lock
+vendor/
+.idea
+docs/examples/example1/destination/template.pot
+.phpunit.result.cache

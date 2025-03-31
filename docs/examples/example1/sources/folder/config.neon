@@ -1,0 +1,4 @@
+parameters:
+    myEnum:
+        - First
+        - Second
