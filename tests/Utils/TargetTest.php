@@ -60,16 +60,18 @@ class TargetTest extends TestCase
         $target->process($output, true);
         $finalOutput = $output->fetch();
 
-        $this->assertSame(<<<EOF
+        $currentDir = __DIR__ .'/';
+        $expectedOutput = <<<EOF
         ./../../docs/examples/example1//sources/folder/file.php:       [ DrabekDigital\GettextMiner\Extractors\PHP ] 
         ./../../docs/examples/example1//sources/folder/file.latte:       [ DrabekDigital\GettextMiner\Extractors\LegacyLatte ] 
         ./../../docs/examples/example1//sources/folder/config.neon:       [ DrabekDigital\GettextMiner\Extractors\Neon ] 
         ./../../docs/examples/example1//sources/folder/sql.sql:       [ DrabekDigital\GettextMiner\Extractors\SQL ] 
         ./../../docs/examples/example1//sources/standalone.php:       [ DrabekDigital\GettextMiner\Extractors\PHP ] 
-        Saving extracted string template into: /Users/jan/Projekty/Drabek.digital/gettext-miner/tests/Utils/../../docs/examples/example1/destination/template.pot      [ OK ]
-
-
-        EOF, $finalOutput);
+        Saving extracted string template into: $currentDir../../docs/examples/example1/destination/template.pot      [ OK ]
+        EOF;
+        $expectedOutput = $this->sortByLines(trim($expectedOutput));
+        $finalOutput = $this->sortByLines(trim($finalOutput));
+        $this->assertSame($expectedOutput, $finalOutput);
         $this->assertFileExists(__DIR__ . '/../../docs/examples/example1/destination/template.pot');
 
         $generatedFile = file_get_contents(__DIR__ . '/../../docs/examples/example1/destination/template.pot');
@@ -85,5 +87,12 @@ class TargetTest extends TestCase
             'You have %d mails.',
         ];
         EOF, $generatedFile);
+    }
+
+    private function sortByLines(string $input): string
+    {
+        $lines = explode("\n", $input);
+        sort($lines);
+        return implode("\n", $lines);
     }
 }

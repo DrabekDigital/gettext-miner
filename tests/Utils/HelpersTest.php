@@ -103,4 +103,15 @@ class HelpersTest extends TestCase
         $this->assertEquals('$count', Helpers::extractArgument('"Hello %d o\'clock",$count', 2));
         $this->assertEquals("\$count", Helpers::extractArgument("'Hello %d o\"clock',\$count", 2));
     }
+
+    public function testIsStringList(): void
+    {
+        $this->assertTrue(Helpers::isStringList([]));
+        $this->assertTrue(Helpers::isStringList([""]));
+        $this->assertTrue(Helpers::isStringList(["foo", "bar"]));
+
+        $this->assertFalse(Helpers::isStringList([1]));
+        $this->assertFalse(Helpers::isStringList(["foo", 1]));
+        $this->assertFalse(Helpers::isStringList(["foo" => "bar"]));
+    }
 }
