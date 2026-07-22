@@ -77,6 +77,14 @@ class LegacyLatteTest extends TestCase
         $this->assertArrayHasKey("Hi\nHugo", $filter->extract('file.php', "{_}Hi\nHugo{/_}"));
     }
 
+    public function testTranslatePairMacro(): void
+    {
+        $filter = new LegacyLatte();
+        $this->assertArrayHasKey('Hi Hugo', $filter->extract('file.php', '{translate}Hi Hugo{/translate}'));
+        $this->assertArrayHasKey('Hi Hugo', $filter->extract('file.php', '{translate|noescape}Hi Hugo{/translate}'));
+        $this->assertArrayHasKey("Hi\nHugo", $filter->extract('file.php', "{translate}Hi\nHugo{/translate}"));
+    }
+
     public function testWeirdMacros(): void
     {
         $filter = new LegacyLatte();
