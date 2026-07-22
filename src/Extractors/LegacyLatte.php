@@ -27,6 +27,7 @@ use Override;
  *  - {_}string{/_} - pair macro
  *  - {_|modifier}string{/_} - pair macro with modifier
  *  - {_|modifier1|modifier2}string{/_} - pair macro with multiple modifiers
+ *  - {translate}string{/translate} - pair macro (Contributte Translation)
  *  - {$this->translate('string')} - function call macro
  *  - {$control->translate('string')} - function call macro
  *
@@ -45,7 +46,7 @@ class LegacyLatte implements Extractor
     private const string STRING_REGEX = '(["\'])(\\\\?.)*?\3'; // Matches strings even with escaping
 
     /** @var string[] */
-    protected array $prefixes = ['_'];
+    protected array $prefixes = ['_', 'translate'];
 
     /** @var string[] */
     protected array $modifiers = ['noescape', 'stripHtml', 'nl2br\|noescape', 'breakLines\|noescape'];
