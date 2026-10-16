@@ -58,11 +58,11 @@ class MineCommand extends Command
             foreach ($targets as $target) {
                 $extractor->addTarget($target);
             }
-            $extractor->run($listFiles);
+            $success = $extractor->run($listFiles);
         } catch (InvalidConfigurationException $ex) {
             $output->writeln($ex->getMessage());
             return self::FAILURE;
         }
-        return self::SUCCESS;
+        return $success ? self::SUCCESS : self::FAILURE;
     }
 }

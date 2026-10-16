@@ -58,7 +58,7 @@ class TargetTest extends TestCase
         $this->assertFileDoesNotExist(__DIR__ . '/../../docs/examples/example1/destination/template.pot');
 
         $output = new BufferedOutput(OutputInterface::VERBOSITY_NORMAL, true);
-        $target->process($output, true);
+        $this->assertTrue($target->process($output, true));
         $finalOutput = $output->fetch();
 
         $currentDir = __DIR__ .'/';
@@ -135,5 +135,22 @@ class TargetTest extends TestCase
         $lines = explode("\n", $input);
         sort($lines);
         return implode("\n", $lines);
+    }
+
+    public function testUnwritableDestination(): void
+    {
+        $target = new Target(
+            "UnwritableModule",
+            __DIR__ . '/../../docs/examples/example1/destination', // directory cannot be written as a file
+            realpath(__DIR__ . '/../../docs/examples/example1'), // @phpstan-ignore-line
+            ['sources'],
+            [],
+            [new PHP()],
+            new ArrayFile()
+        );
+
+        $output = new BufferedOutput();
+        $this->assertFalse($target->process($output));
+        $this->assertStringContainsString('[ FAILED ]', $output->fetch());
     }
 }

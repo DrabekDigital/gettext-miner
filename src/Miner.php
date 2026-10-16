@@ -36,15 +36,22 @@ class Miner
         $this->targets[$target->getName()] = $target;
     }
 
-    public function run(bool $listFiles = false): void
+    /**
+     * Processes all targets (even when some of them fail).
+     *
+     * @return bool True if all targets have been processed successfully, false otherwise
+     */
+    public function run(bool $listFiles = false): bool
     {
         if (count($this->targets) === 0) {
             $this->output->writeln(sprintf('No targets configured, exiting.'));
-            return;
+            return true;
         }
+        $success = true;
         foreach ($this->targets as $target) {
             $this->output->writeln(sprintf('Processing target [%s]...', $target->getName()));
-            $target->process($this->output, $listFiles);
+            $success = $target->process($this->output, $listFiles) && $success;
         }
+        return $success;
     }
 }
