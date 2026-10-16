@@ -244,4 +244,27 @@ EOD;
 
         $this->assertEquals($expected, implode("\n", array_slice(explode("\n", $formatter->format($messages)), 2)));
     }
+
+    public function testBackslashEscaping(): void
+    {
+        $formatter = new Gettext(new SprintfPluralDetector());
+
+        $messages = [
+            'Path C:\\temp\\new' => ['path.php:3'],
+        ];
+
+        $expected = <<<'EOD'
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: path.php:3
+msgid "Path C:\\temp\\new"
+msgstr ""
+
+EOD;
+
+        $this->assertEquals($expected, implode("\n", array_slice(explode("\n", $formatter->format($messages)), 2)));
+    }
 }
