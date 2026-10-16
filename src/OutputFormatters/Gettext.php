@@ -67,12 +67,13 @@ class Gettext implements OutputFormatter
                 }
             }
 
-            $output[] = sprintf('msgid "%s"', Helpers::preprocessGettextNewlines(Helpers::escapeStringToBeWrapped($message)));
+            $escapedMessage = Helpers::preprocessGettextNewlines(Helpers::escapeStringToBeWrapped($message));
+            $output[] = sprintf('msgid "%s"', $escapedMessage);
 
             if (!$this->detector->hasPluralPlaceholder($message)) {
                 $output[] = sprintf('msgstr "%s"', '');
             } else {
-                $output[] = sprintf('msgid_plural "%s"', $message);
+                $output[] = sprintf('msgid_plural "%s"', $escapedMessage);
                 $output[] = sprintf('msgstr[0] "%s"', '');
                 $output[] = sprintf('msgstr[1] "%s"', '');
             }
