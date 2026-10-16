@@ -85,29 +85,77 @@ final class Helpers
     }
 
     /**
-     * Removes quotes (single, double) from given string and fix escaped quotes
+     * Removes quotes (single, double) from given PHP string literal and decodes its escape sequences
+     * the same way PHP does:
      * 'Hello World' -> Hello World
+     * 'It\'s' -> It's
+     * "Line\nbreak" -> Line<newline>break
+     *
+     * Values not wrapped in matching quotes are returned unchanged.
      *
      * @param string|null $value
      * @return string
+     * @link https://www.php.net/manual/en/language.types.string.php
      */
-    public static function removePHPStringWrap(?string $value)
+    public static function removePHPStringWrap(?string $value): string
     {
         if ($value === null) {
             return '';
         }
-        $symbol = null;
-        if (($value[0] === "'" && $value[strlen($value) - 1] === "'") || ($value[0] === '"' || $value[strlen($value) - 1] === '"')) {
-            $symbol = $value[0];
-            $value = substr($value, 1, -1);
+        $length = strlen($value);
+        if ($length < 2 || $value[0] !== $value[$length - 1] || ($value[0] !== "'" && $value[0] !== '"')) {
+            return $value;
         }
-        if ($symbol === '\'') {
-            $value = str_replace("\'", "'", $value);
+        $symbol = $value[0];
+        $value = substr($value, 1, -1);
+
+        if ($symbol === "'") {
+            // Only \' and \\ are escape sequences in single-quoted strings
+            return preg_replace('#\\\\([\\\\\'])#', '$1', $value) ?? $value;
         }
-        if ($symbol === '"') {
-            $value = str_replace('\"', '"', $value);
+
+        return self::decodeDoubleQuotedEscapes($value);
+    }
+
+    /**
+     * Decodes escape sequences of PHP double-quoted string, unknown sequences are kept as they are (as in PHP).
+     */
+    private static function decodeDoubleQuotedEscapes(string $value): string
+    {
+        return preg_replace_callback(
+            '#\\\\(?:([nrtvef\\\\$"])|([0-7]{1,3})|x([0-9A-Fa-f]{1,2})|u\{([0-9A-Fa-f]+)\})#',
+            self::decodeEscapeSequence(...),
+            $value
+        ) ?? $value;
+    }
+
+    /**
+     * @param array<string> $match
+     */
+    private static function decodeEscapeSequence(array $match): string
+    {
+        if (($match[1] ?? '') !== '') {
+            return match ($match[1]) {
+                'n' => "\n",
+                'r' => "\r",
+                't' => "\t",
+                'v' => "\v",
+                'e' => "\e",
+                'f' => "\f",
+                default => $match[1], // \\, \$ and \"
+            };
         }
-        return $value;
+        if (($match[2] ?? '') !== '') {
+            return chr((int) octdec($match[2]) & 0xFF);
+        }
+        if (($match[3] ?? '') !== '') {
+            return chr((int) hexdec($match[3]));
+        }
+        $codepoint = (int) hexdec($match[4] ?? '');
+        if ($codepoint > 0x10FFFF || ($codepoint >= 0xD800 && $codepoint <= 0xDFFF)) {
+            return $match[0]; // invalid codepoint, keep as is
+        }
+        return mb_chr($codepoint, 'UTF-8');
     }
 
     /**

@@ -116,7 +116,7 @@ EOD;
 
         $output = $filter->extract('temp.php', $document);
         $this->assertArrayHasKey('Full sentence with many words', $output);
-        $this->assertArrayHasKey('new\nline', $output);
+        $this->assertArrayHasKey("new\nline", $output); // escape sequences are decoded as in PHP
         $this->assertArrayHasKey("My o\"clock", $output);
         $this->assertArrayHasKey('My o\'clock 2', $output);
         $this->assertArrayHasKey('My o"clock 3', $output);
@@ -149,7 +149,7 @@ EOD;
 
         $output = $filter->extract('temp.php', $document);
         $this->assertArrayHasKey('Full sentence with many words', $output);
-        $this->assertArrayHasKey('new\nline', $output);
+        $this->assertArrayHasKey("new\nline", $output); // escape sequences are decoded as in PHP
         $this->assertArrayHasKey("My o\"clock", $output);
         $this->assertArrayHasKey('My o\'clock 2', $output);
         $this->assertArrayHasKey('My o"clock 3', $output);
