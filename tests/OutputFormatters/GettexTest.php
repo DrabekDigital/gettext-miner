@@ -188,4 +188,33 @@ EOD;
         $this->expectExceptionMessage('class [DrabekDigital\GettextMiner\Tests\Utils\ExistingNotExtractorClass] is not an PluralDetector.');
         Gettext::processConfig($config);
     }
+
+    public function testNumericMessages(): void
+    {
+        // PHP converts numeric string keys to integers, they still have to be in the output
+        $formatter = new Gettext(new SprintfPluralDetector());
+
+        $messages = [
+            '404' => ['error.php:1'],
+            'Hello' => ['hello.php:2'],
+        ];
+
+        $expected = <<<'EOD'
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: error.php:1
+msgid "404"
+msgstr ""
+
+#: hello.php:2
+msgid "Hello"
+msgstr ""
+
+EOD;
+
+        $this->assertEquals($expected, implode("\n", array_slice(explode("\n", $formatter->format($messages)), 2)));
+    }
 }
