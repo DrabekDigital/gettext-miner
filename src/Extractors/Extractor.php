@@ -27,7 +27,7 @@ interface Extractor
      * @param string $path Path to file
      * @param string $content File content
      * @param string|null $projectDirectory Project directory
-     * @return array<string, array<string>> List of extracted translation strings
+     * @return array<array-key, array<string>> List of extracted translation strings (numeric messages have integer keys)
      */
     public function extract(string $path, string $content, ?string $projectDirectory = null): array;
 

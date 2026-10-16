@@ -7,6 +7,7 @@ use DrabekDigital\GettextMiner\Utils\Helpers;
 use Nette\Utils\Strings;
 use Override;
 use function ksort;
+use const SORT_STRING;
 
 readonly class ArrayFile implements OutputFormatter
 {
@@ -23,14 +24,15 @@ readonly class ArrayFile implements OutputFormatter
     #[Override]
     public function format(array $messages): string
     {
-        ksort($messages);
+        ksort($messages, SORT_STRING);
 
         $output= ['<?php declare(strict_types=1);'];
         $output[] = sprintf('$%s = [', $this->outputVariable);
 
         // Metadata about file origin are ignored at the moment
         foreach ($messages as $message => $occurrences) {
-            if (!is_string($message) || Strings::length($message) === 0) { // @phpstan-ignore-line
+            $message = (string) $message; // numeric string keys are converted to int by PHP
+            if (Strings::length($message) === 0) {
                 continue;
             }
             $output[] = sprintf(
