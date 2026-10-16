@@ -8,6 +8,7 @@ use Override;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class MineCommand extends Command
@@ -29,11 +30,9 @@ class MineCommand extends Command
             ->addOption(
                 'list',
                 'l',
-                InputArgument::OPTIONAL,
+                InputOption::VALUE_NONE,
                 'List all processed files',
-                false
             );
-        ;
     }
 
     #[Override]
@@ -44,7 +43,7 @@ class MineCommand extends Command
             $output->writeln('Directory not readable or does not exist.');
             return self::FAILURE;
         }
-        $listFiles = $input->getOption('list');
+        $listFiles = (bool) $input->getOption('list');
         chdir($absolutePath);
 
         $configLoader = new ConfigLoader();
@@ -59,7 +58,7 @@ class MineCommand extends Command
             foreach ($targets as $target) {
                 $extractor->addTarget($target);
             }
-            $extractor->run($listFiles); // @phpstan-ignore-line
+            $extractor->run($listFiles);
         } catch (InvalidConfigurationException $ex) {
             $output->writeln($ex->getMessage());
             return self::FAILURE;
