@@ -151,7 +151,7 @@ final class Helpers
             return chr((int) octdec($match[2]) & 0xFF);
         }
         if (($match[3] ?? '') !== '') {
-            return chr((int) hexdec($match[3]));
+            return chr((int) hexdec($match[3]) & 0xFF); // at most two hex digits, the mask is a no-op
         }
         $codepoint = (int) hexdec($match[4] ?? '');
         if ($codepoint > 0x10FFFF || ($codepoint >= 0xD800 && $codepoint <= 0xDFFF)) {
