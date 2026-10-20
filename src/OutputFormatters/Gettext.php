@@ -11,6 +11,7 @@ use Override;
 use Exception;
 use Throwable;
 use function ksort;
+use const SORT_STRING;
 use function sprintf;
 use function str_contains;
 
@@ -41,14 +42,15 @@ class Gettext implements OutputFormatter
     #[Override]
     public function format(array $messages): string
     {
-        ksort($messages);
+        ksort($messages, SORT_STRING);
 
         $output = [];
 
         $this->populateGettextTemplateStart($output);
 
         foreach ($messages as $message => $fromFiles) {
-            if (!is_string($message) || Strings::length($message) === 0) { // @phpstan-ignore-line
+            $message = (string) $message; // numeric string keys are converted to int by PHP
+            if (Strings::length($message) === 0) {
                 continue;
             }
 

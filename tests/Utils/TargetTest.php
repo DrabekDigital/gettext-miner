@@ -2,6 +2,7 @@
 
 namespace DrabekDigital\GettextMiner\Tests\Utils;
 
+use DrabekDigital\GettextMiner\Extractors\Extractor;
 use DrabekDigital\GettextMiner\Extractors\LegacyLatte;
 use DrabekDigital\GettextMiner\Extractors\Neon;
 use DrabekDigital\GettextMiner\Extractors\PHP;
@@ -87,6 +88,46 @@ class TargetTest extends TestCase
             'You have %d mails.',
         ];
         EOF, $generatedFile);
+    }
+
+    public function testNumericMessagesFromMultipleFiles(): void
+    {
+        // Every PHP file yields the numeric message "404", all occurrences have to be preserved
+        $extractor = new class implements Extractor {
+            public function accepts(string $path): bool
+            {
+                return str_ends_with($path, '.php');
+            }
+
+            public function extract(string $path, string $content, ?string $projectDirectory = null): array
+            {
+                return ['404' => [$path . ':1'], 'Not found' => [$path . ':2']];
+            }
+
+            public static function processConfig(array &$constructorArgs): void
+            {
+            }
+        };
+
+        $target = new Target(
+            "NumericModule",
+            __DIR__ . '/../../docs/examples/example1/destination/template.pot',
+            realpath(__DIR__ . '/../../docs/examples/example1'), // @phpstan-ignore-line
+            ['sources'],
+            [],
+            [$extractor],
+            new ArrayFile()
+        );
+
+        $target->process(new BufferedOutput());
+
+        $this->assertSame(<<<'EOF'
+        <?php declare(strict_types=1);
+        $messages = [
+            '404',
+            'Not found',
+        ];
+        EOF, file_get_contents(__DIR__ . '/../../docs/examples/example1/destination/template.pot'));
     }
 
     private function sortByLines(string $input): string

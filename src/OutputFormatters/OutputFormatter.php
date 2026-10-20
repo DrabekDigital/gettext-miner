@@ -14,7 +14,7 @@ interface OutputFormatter
     /**
      * Formats given messages into the desired output format.
      *
-     * @param array<string, array<string>> $messages All messages to be dumped in the output.
+     * @param array<array-key, array<string>> $messages All messages to be dumped in the output.
      * @return string Output formatted to desired format and returned as complete string
      */
     public function format(array $messages): string;

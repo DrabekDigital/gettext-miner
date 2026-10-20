@@ -60,7 +60,7 @@ class Target
 
     public function process(OutputInterface $output, bool $listFiles = false): void
     {
-        /** @var array<string, array<string>> $messages */
+        /** @var array<array-key, array<string>> $messages */
         $messages = [];
         
         /**
@@ -93,7 +93,7 @@ class Target
                         continue;
                     }
                     $filterData = $extractor->extract($path, $fileContent, $this->projectPath);
-                    $messages = array_merge_recursive($messages, $filterData);
+                    $this->mergeMessages($messages, $filterData);
                 }
             }
             if ($listFiles) {
@@ -128,7 +128,7 @@ class Target
                         continue;
                     }
                     $filterData = $extractor->extract($path, $fileContent, $this->projectPath);
-                    $messages = array_merge_recursive($messages, $filterData);
+                    $this->mergeMessages($messages, $filterData);
                 }
             }
         }
@@ -137,7 +137,7 @@ class Target
         }
 
         // Post processing
-        $messages = $this->toProjectPaths($messages); // @phpstan-ignore-line
+        $messages = $this->toProjectPaths($messages);
         $formatted = $this->outputFormatter->format($messages);
         $output->write(sprintf('Saving extracted string template into: %s      ', $this->destination));
         if (@file_put_contents($this->destination, $formatted)) { // explicitly
@@ -148,8 +148,27 @@ class Target
         $output->writeln("\n");
     }
     /**
-     * @param array<string, array<string>> $messages
-     * @return array<string, array<string>>
+     * Merges extracted messages into the accumulator.
+     *
+     * Note: array_merge_recursive() cannot be used here, because PHP converts numeric string keys
+     * (e.g. "404") to integers and array_merge_recursive() renumbers integer keys, which would
+     * lose such messages.
+     *
+     * @param array<array-key, array<string>> $messages
+     * @param array<array-key, array<string>> $extracted
+     */
+    private function mergeMessages(array &$messages, array $extracted): void
+    {
+        foreach ($extracted as $message => $occurrences) {
+            foreach ($occurrences as $occurrence) {
+                $messages[$message][] = $occurrence;
+            }
+        }
+    }
+
+    /**
+     * @param array<array-key, array<string>> $messages
+     * @return array<array-key, array<string>>
      */
     private function toProjectPaths(array $messages): array
     {
