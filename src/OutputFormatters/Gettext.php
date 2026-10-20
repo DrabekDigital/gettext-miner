@@ -103,7 +103,7 @@ class Gettext implements OutputFormatter
     {
         if (isset($constructorArgs['detector'])) {
             $detector = $constructorArgs['detector'];
-            if (isset(Aliases::PLURAL_DETECTORS[$detector])) {
+            if (is_string($detector) && isset(Aliases::PLURAL_DETECTORS[$detector])) {
                 $className = Aliases::PLURAL_DETECTORS[$detector];
             } else {
                 $className = $detector;
@@ -118,7 +118,7 @@ class Gettext implements OutputFormatter
             try {
                 /** @var PluralDetector $instance */
                 $instance = new $className();
-            } catch (Throwable $ex) { // @phpstan-ignore-line
+            } catch (Throwable $ex) {
                 throw new InvalidConfigurationException(sprintf('class [%s] could not been created due to an error: [%s]', $className, $ex->getMessage()), 0, $ex);
             }
             $constructorArgs['detector'] = $instance;

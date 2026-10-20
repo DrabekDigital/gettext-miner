@@ -475,4 +475,61 @@ class ConfigLoaderTest extends TestCase
         $property->setAccessible(true);
         return $property->getValue($object);
     }
+
+    public function testParseNonStringExtractor(): void
+    {
+        $configLoader = new ConfigLoader();
+        $config = <<<END
+        FooBar:
+            output:
+                destination: locales
+            sources:
+                - foo
+            extractors:
+                php:
+                    extractor: [PHP]
+        END;
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('could not been found');
+        $configLoader->parse($config, '/project');
+    }
+
+    public function testParseNonStringFormatter(): void
+    {
+        $configLoader = new ConfigLoader();
+        $config = <<<END
+        FooBar:
+            output:
+                destination: locales
+                formatter: [Gettext]
+            sources:
+                - foo
+            extractors:
+                php:
+                    extractor: PHP
+        END;
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('could not been found');
+        $configLoader->parse($config, '/project');
+    }
+
+    public function testParseNonStringDetector(): void
+    {
+        $configLoader = new ConfigLoader();
+        $config = <<<END
+        FooBar:
+            output:
+                destination: locales
+                formatter: Gettext
+                detector: [SprintfPluralDetector]
+            sources:
+                - foo
+            extractors:
+                php:
+                    extractor: PHP
+        END;
+        $this->expectException(InvalidConfigurationException::class);
+        $this->expectExceptionMessage('could not been found');
+        $configLoader->parse($config, '/project');
+    }
 }
