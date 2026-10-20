@@ -36,15 +36,17 @@ final class Helpers
     /**
      * Add slashes as escaping to prevent output breaking
      *
-     * For example having unknown string to be wrapped in "" means that " needs escaping
+     * For example having unknown string to be wrapped in "" means that " needs escaping.
+     * Backslash is always escaped as well, otherwise it would start an escape sequence
+     * (e.g. C:\temp would contain a tab in gettext or a string ending with \ would break PHP output).
      *
      * @param string $string
-     * @param string $charlist
+     * @param string $charlist Characters to be escaped in addition to the backslash
      * @return string
      */
     public static function escapeStringToBeWrapped(string $string, string $charlist = '"'): string
     {
-        return addcslashes($string, $charlist);
+        return addcslashes($string, '\\' . $charlist);
     }
 
     /**

@@ -40,6 +40,9 @@ class HelpersTest extends TestCase
     {
         $this->assertEquals('Hello W\"orld', Helpers::escapeStringToBeWrapped('Hello W"orld'));
         $this->assertEquals("Hello W\'orld", Helpers::escapeStringToBeWrapped('Hello W\'orld', "'"));
+        $this->assertEquals('C:\\\\temp', Helpers::escapeStringToBeWrapped('C:\\temp'));
+        $this->assertEquals('Ends with \\\\', Helpers::escapeStringToBeWrapped('Ends with \\', "'"));
+        $this->assertEquals('\\\\\\"', Helpers::escapeStringToBeWrapped('\\"'));
     }
 
     public function testOffsetToLine(): void
