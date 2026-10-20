@@ -58,7 +58,10 @@ class Target
         return $this->files;
     }
 
-    public function process(OutputInterface $output, bool $listFiles = false): void
+    /**
+     * @return bool True if the extracted template has been successfully saved, false otherwise
+     */
+    public function process(OutputInterface $output, bool $listFiles = false): bool
     {
         /** @var array<array-key, array<string>> $messages */
         $messages = [];
@@ -140,12 +143,10 @@ class Target
         $messages = $this->toProjectPaths($messages);
         $formatted = $this->outputFormatter->format($messages);
         $output->write(sprintf('Saving extracted string template into: %s      ', $this->destination));
-        if (@file_put_contents($this->destination, $formatted)) { // explicitly
-            $output->write('[ OK ]');
-        } else {
-            $output->write('[ FAILED ] (permissions?)');
-        }
+        $saved = @file_put_contents($this->destination, $formatted) !== false; // explicitly silenced, reported below
+        $output->write($saved ? '[ OK ]' : '[ FAILED ] (permissions?)');
         $output->writeln("\n");
+        return $saved;
     }
     /**
      * Merges extracted messages into the accumulator.

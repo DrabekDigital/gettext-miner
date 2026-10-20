@@ -6,7 +6,8 @@ if (file_exists(__DIR__ . '/../../../autoload.php')) {
 } elseif (file_exists('vendor/autoload.php')) {
     require 'vendor/autoload.php';
 } else {
-    die('Cannot find Composer autoload.php. Did you run composer install?');
+    fwrite(STDERR, "Cannot find Composer autoload.php. Did you run composer install?\n");
+    exit(1);
 }
 
 use Symfony\Component\Console\Application;
