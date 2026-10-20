@@ -36,4 +36,14 @@ class ArrayFileTest extends TestCase
             $outputFormatter->format(['Hel\'lo' => [], 'Wor"ld' => [], 'New\\nline' => []])
         );
     }
+
+    public function testNumericMessages(): void
+    {
+        // PHP converts numeric string keys to integers, they still have to be in the output
+        $outputFormatter = new ArrayFile('values', Indent::SPACES);
+        $this->assertEquals(
+            "<?php declare(strict_types=1);\n\$values = [\n    '2024',\n    '404',\n    'Hello',\n];",
+            $outputFormatter->format(['404' => [], 'Hello' => [], '2024' => []])
+        );
+    }
 }
