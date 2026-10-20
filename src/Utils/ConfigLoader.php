@@ -97,7 +97,7 @@ class ConfigLoader
                 throw new InvalidConfigurationException(sprintf('Target [%s]: extractor type/class not provider.', $targetName));
             }
             $extractor = $options['extractor'];
-            $className = (isset(Aliases::EXTRACTORS[$extractor])) ? Aliases::EXTRACTORS[$extractor] : $extractor;
+            $className = (is_string($extractor) && isset(Aliases::EXTRACTORS[$extractor])) ? Aliases::EXTRACTORS[$extractor] : $extractor;
             if (!is_string($className) || !class_exists($className)) {
                 throw new InvalidConfigurationException(sprintf('Target [%s]: class [%s] could not been found.', $targetName, print_r($className, true)));
             }
@@ -116,7 +116,7 @@ class ConfigLoader
 
             try {
                 $instance = new $className(...$options);
-            } catch (Throwable $ex) { // @phpstan-ignore-line
+            } catch (Throwable $ex) {
                 throw new InvalidConfigurationException(sprintf('Target [%s]: class [%s] could not been created due to an error: [%s]', $targetName, $className, $ex->getMessage()), 0, $ex);
             }
             $output[] = $instance;
@@ -133,7 +133,7 @@ class ConfigLoader
     private function prepareOutput(array $output, string $targetName): OutputFormatter
     {
         $type = (isset($output['formatter'])) ? $output['formatter'] : self::DEFAULT_OUTPUT_FORMATTER;
-        $className = (isset(Aliases::OUTPUT_FORMATTERS[$type])) ? Aliases::OUTPUT_FORMATTERS[$type] : $type;
+        $className = (is_string($type) && isset(Aliases::OUTPUT_FORMATTERS[$type])) ? Aliases::OUTPUT_FORMATTERS[$type] : $type;
         if (!is_string($className) || !class_exists($className)) {
             throw new InvalidConfigurationException(sprintf('Target [%s]: class [%s] could not been found.', $targetName, print_r($className, true)));
         }
@@ -153,7 +153,7 @@ class ConfigLoader
 
         try {
             $instance = new $className(...$output);
-        } catch (Throwable $ex) { // @phpstan-ignore-line
+        } catch (Throwable $ex) {
             throw new InvalidConfigurationException(sprintf('Target [%s]: class [%s] could not been created due to an error: [%s]', $targetName, $className, $ex->getMessage()), 0, $ex);
         }
         

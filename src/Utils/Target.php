@@ -10,20 +10,28 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Target
 {
+    /** @var list<string> Absolute paths of source directories */
+    private array $sources;
+
+    /** @var list<string> Absolute paths of explicitly listed files */
+    private array $files;
+
+    /**
+     * @param string[] $sources Source directories relative to the project path
+     * @param string[] $files Explicitly listed files relative to the project path
+     * @param Extractor[] $extractors
+     */
     public function __construct(
         private readonly string $name,
         private readonly string $destination,
         private readonly string $projectPath,
-        /** @var string[] */
-        private array $sources,
-        /** @var string[] */
-        private array $files,
-        /** @var Extractor[] */
+        array $sources,
+        array $files,
         private array $extractors,
         private OutputFormatter $outputFormatter,
     ) {
-        $this->sources = array_map(fn ($input) => $projectPath . '/' . $input, $sources);
-        $this->files = array_map(fn ($input) => $projectPath . '/' . $input, $files);
+        $this->sources = array_values(array_map(fn ($input) => $projectPath . '/' . $input, $sources));
+        $this->files = array_values(array_map(fn ($input) => $projectPath . '/' . $input, $files));
     }
 
     public function getName(): string
@@ -37,14 +45,14 @@ class Target
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     public function getSources(): array
     {
         return $this->sources;
     }
 
-    /** @return string[] */
+    /** @return list<string> */
     public function getFiles(): array
     {
         return $this->files;
