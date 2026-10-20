@@ -27,7 +27,6 @@
     "symfony/console": "^6|^7",
     "nette/neon": "^3",
     "nette/utils": "^4",
-    "nette/finder": "^3",
     "symfony/event-dispatcher": "^7"
   },
   "require-dev": {
