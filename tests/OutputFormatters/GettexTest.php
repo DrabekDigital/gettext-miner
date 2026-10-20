@@ -217,4 +217,31 @@ EOD;
 
         $this->assertEquals($expected, implode("\n", array_slice(explode("\n", $formatter->format($messages)), 2)));
     }
+
+    public function testPluralsEscaping(): void
+    {
+        $formatter = new Gettext(new SprintfPluralDetector());
+
+        $messages = [
+            "You have \"%d\" new\nmails." => ['mail.php:7'],
+        ];
+
+        $expected = <<<'EOD'
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: mail.php:7
+msgid "You have \"%d\" new\n"
+"mails."
+msgid_plural "You have \"%d\" new\n"
+"mails."
+msgstr[0] ""
+msgstr[1] ""
+
+EOD;
+
+        $this->assertEquals($expected, implode("\n", array_slice(explode("\n", $formatter->format($messages)), 2)));
+    }
 }
