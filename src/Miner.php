@@ -10,19 +10,30 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Miner
 {
+    /** @var array<string, Target> Targets indexed by their name */
+    private array $targets = [];
+
+    /**
+     * @param Target[] $targets
+     */
     public function __construct(
         private readonly OutputInterface $output,
-        /** @var Target[] */
-        private array $targets,
+        array $targets = [],
     ) {
+        foreach ($targets as $target) {
+            $this->addTarget($target);
+        }
     }
 
+    /**
+     * @throws InvalidConfigurationException when a target with the same name has been already added
+     */
     public function addTarget(Target $target): void
     {
         if (isset($this->targets[$target->getName()])) {
-            throw new InvalidConfigurationException(sprintf('The target [%s] is duplicate, ignoring.', $target->getName()));
+            throw new InvalidConfigurationException(sprintf('The target [%s] is duplicate.', $target->getName()));
         }
-        $this->targets[] = $target;
+        $this->targets[$target->getName()] = $target;
     }
 
     public function run(bool $listFiles = false): void
