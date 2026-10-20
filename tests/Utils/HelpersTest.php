@@ -86,6 +86,52 @@ class HelpersTest extends TestCase
         $this->assertEquals('Hello o\'string', Helpers::removePHPStringWrap("'Hello o\'string'"));
         $this->assertEquals('Hello o"string', Helpers::removePHPStringWrap('"Hello o\"string"'));
     }
+
+    public function testRemovePHPStringWrapMismatchedQuotes(): void
+    {
+        // Not a complete string literal -> unchanged
+        $this->assertSame('"abc', Helpers::removePHPStringWrap('"abc'));
+        $this->assertSame('abc"', Helpers::removePHPStringWrap('abc"'));
+        $this->assertSame('Hello "world"', Helpers::removePHPStringWrap('Hello "world"'));
+        $this->assertSame('"abc\'', Helpers::removePHPStringWrap('"abc\''));
+        $this->assertSame('"', Helpers::removePHPStringWrap('"'));
+        $this->assertSame('', Helpers::removePHPStringWrap(''));
+        $this->assertSame('', Helpers::removePHPStringWrap('""'));
+    }
+
+    public function testRemovePHPStringWrapEscapeSequences(): void
+    {
+        // Each case is compared with the value PHP itself gives for the literal
+        $literals = [
+            <<<'PHP'
+            'a\\b'
+            PHP,
+            <<<'PHP'
+            'It\'s'
+            PHP,
+            <<<'PHP'
+            'no \n escape in single quotes'
+            PHP,
+            <<<'PHP'
+            "line\nbreak\ttab"
+            PHP,
+            <<<'PHP'
+            "back\\slash and \"quotes\" and \$dollar"
+            PHP,
+            <<<'PHP'
+            "unknown \q escape"
+            PHP,
+            <<<'PHP'
+            "octal \101 hex \x41 unicode \u{1F600}"
+            PHP,
+            <<<'PHP'
+            "C:\\temp"
+            PHP,
+        ];
+        foreach ($literals as $literal) {
+            $this->assertSame(eval('return ' . $literal . ';'), Helpers::removePHPStringWrap($literal), $literal);
+        }
+    }
     public function testExtractArgument(): void
     {
         $this->assertEquals('"Hello string"', Helpers::extractArgument('"Hello string"'));
